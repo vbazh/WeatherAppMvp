@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="fab_margin_16dp">16dp</dimen>
+    <dimen name="padding_text_card_24dp">24dp</dimen>
+    <dimen name="margin_button_top_18dp">18dp</dimen>
+    <dimen name="margin_button_start_18dp">8dp</dimen>
+    <dimen name="margin_button_start_end_18dp">18dp</dimen>
+</resources>

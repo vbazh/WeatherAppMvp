@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">WeatherApp-Mvp</string>
+    <string name="text_humidity">Humidity:</string>
+    <string name="text_temperature">Temperature:</string>
+    <string name="text_save">Save</string>
+    <string name="hint_city_name">City name</string>
+    <string name="text_success_add">City successfully added</string>
+    <string name="text_success_delete">City deleted</string>
+    <string name="text_no_city">You have no added cities</string>
+    <string name="text_add_city">Add city</string>
+</resources>
