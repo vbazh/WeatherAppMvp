@@ -2,6 +2,7 @@ package com.vbazh.weatherapp_mvp.screens.weather;
 
 import com.vbazh.weatherapp_mvp.data.entities.Weather;
 import com.vbazh.weatherapp_mvp.data.repository.weather.WeatherDataSource;
+import com.vbazh.weatherapp_mvp.data.repository.weather.WeatherLocalDataSource;
 import com.vbazh.weatherapp_mvp.data.repository.weather.WeatherRemoteDataSource;
 import com.vbazh.weatherapp_mvp.data.repository.weather.WeatherRepository;
 
@@ -13,14 +14,16 @@ public class WeatherPresenter implements WeatherContract.Presenter {
 
     private boolean mFirstLoad = true;
 
-    private String cityName = null;
+    private String id = null;
+
+    public WeatherPresenter(String id, WeatherRepository weatherRepository) {
+        this.id = id;
+        this.mWeatherRepository = weatherRepository;
+    }
 
     @Override
-    public void attachView(WeatherContract.View view, String city) {
+    public void attachView(WeatherContract.View view) {
         this.view = view;
-        this.cityName = city;
-        mWeatherRepository = WeatherRepository.getInstance(WeatherRemoteDataSource.getInstance());
-        updateView();
     }
 
     @Override
@@ -40,12 +43,14 @@ public class WeatherPresenter implements WeatherContract.Presenter {
             view.setLoadingIndicator(true);
         }
 
-        mWeatherRepository.getWeather(cityName, new WeatherDataSource.GetWeatherCallback() {
+        mWeatherRepository.getWeather(id, new WeatherDataSource.GetWeatherCallback() {
             @Override
             public void onWeatherLoaded(Weather weather) {
-                view.setTitle(cityName);
-                view.setCityName(cityName);
+                view.setTitle(weather.getCityName());
+                view.setCityName(weather.getCityName());
                 view.setTemperature(weather.getTemperature());
+                view.setPressure(weather.getPressure());
+                view.setHumidity(weather.getHumidity());
             }
 
             @Override
@@ -55,16 +60,15 @@ public class WeatherPresenter implements WeatherContract.Presenter {
         });
     }
 
-    private void updateView() {
+    @Override
+    public void updateView() {
         if (view != null) {
             loadWeather(false);
-            view.setCityName(cityName);
         }
     }
 
     @Override
     public void detachView() {
         this.view = null;
-
     }
 }

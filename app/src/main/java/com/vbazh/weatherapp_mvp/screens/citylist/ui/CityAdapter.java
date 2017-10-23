@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.vbazh.weatherapp_mvp.R;
-import com.vbazh.weatherapp_mvp.data.entities.City;
+import com.vbazh.weatherapp_mvp.data.entities.Weather;
 import com.vbazh.weatherapp_mvp.utils.BaseUtils;
 
 import java.util.List;
@@ -16,13 +16,13 @@ import java.util.List;
 
 public class CityAdapter extends RecyclerView.Adapter<CityAdapter.CityViewHolder> {
 
-    private List<City> mCities;
+    private List<Weather> mAllWeather;
     private Context mContext;
     private OnItemClickListener mListener;
 
-    public CityAdapter(Context mContext, List<City> mCities, OnItemClickListener listener) {
+    public CityAdapter(Context mContext, List<Weather> allWeather, OnItemClickListener listener) {
         this.mContext = mContext;
-        this.mCities = mCities;
+        this.mAllWeather = allWeather;
         this.mListener = listener;
     }
 
@@ -47,35 +47,35 @@ public class CityAdapter extends RecyclerView.Adapter<CityAdapter.CityViewHolder
     @Override
     public void onBindViewHolder(final CityViewHolder holder, int position) {
 
-        holder.textName.setText(mCities.get(holder.getAdapterPosition()).getCityName());
+        holder.textName.setText(mAllWeather.get(holder.getAdapterPosition()).getCityName());
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mListener.onItemClick(mCities.get(holder.getAdapterPosition()).getCityName());
+                mListener.onItemClick(mAllWeather.get(holder.getAdapterPosition()).getId());
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return mCities.size();
+        return mAllWeather.size();
     }
 
-    public void replaceData(List<City> cities) {
-        mCities = BaseUtils.checkNotNull(cities);
+    public void replaceData(List<Weather> allWeather) {
+        mAllWeather = BaseUtils.checkNotNull(allWeather);
         notifyDataSetChanged();
     }
 
     public void removeItem(int position) {
 
-        mCities.remove(position);
+        mAllWeather.remove(position);
         notifyItemRemoved(position);
 
     }
 
     public interface OnItemClickListener {
-        void onItemClick(String cityName);
+        void onItemClick(String id);
     }
 
 }

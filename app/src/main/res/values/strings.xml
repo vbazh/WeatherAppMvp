@@ -8,4 +8,5 @@
     <string name="text_success_delete">City deleted</string>
     <string name="text_no_city">You have no added cities</string>
     <string name="text_add_city">Add city</string>
+    <string name="text_pressure">Pressure:</string>
 </resources>

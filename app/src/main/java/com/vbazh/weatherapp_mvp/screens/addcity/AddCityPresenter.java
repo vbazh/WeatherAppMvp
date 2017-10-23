@@ -1,23 +1,21 @@
 package com.vbazh.weatherapp_mvp.screens.addcity;
 
-
-import android.util.Log;
-
-import com.vbazh.weatherapp_mvp.data.entities.City;
-import com.vbazh.weatherapp_mvp.data.repository.cities.CitiesLocalDataSource;
-import com.vbazh.weatherapp_mvp.data.repository.cities.CitiesRepository;
-
-import java.util.Random;
+import com.vbazh.weatherapp_mvp.data.entities.Weather;
+import com.vbazh.weatherapp_mvp.data.repository.weather.WeatherDataSource;
+import com.vbazh.weatherapp_mvp.data.repository.weather.WeatherRepository;
 
 public class AddCityPresenter implements AddCityContract.Presenter {
 
     private AddCityContract.View view;
-    private CitiesRepository mCitiesRepository;
+    private WeatherRepository mWeatherRepository;
+
+    public AddCityPresenter(WeatherRepository weatherRepository) {
+        this.mWeatherRepository = weatherRepository;
+    }
 
     @Override
-    public void attachView(AddCityContract.View view, CitiesLocalDataSource localDataSource) {
+    public void attachView(AddCityContract.View view) {
         this.view = view;
-        this.mCitiesRepository = CitiesRepository.getInstance(localDataSource);
     }
 
     @Override
@@ -27,9 +25,18 @@ public class AddCityPresenter implements AddCityContract.Presenter {
 
     @Override
     public void saveCity(String cityName) {
-        Log.d("TAG", "savecity name is " + cityName);
-        City newCity = new City(cityName);
-        mCitiesRepository.addCity(newCity);
-        view.finishAddCity();
+        Weather newWeather = new Weather();
+        newWeather.setCityName(cityName);
+        mWeatherRepository.saveWeather(newWeather, new WeatherDataSource.WeatherSavedCallback() {
+            @Override
+            public void onWeatherSaved() {
+                view.finishAddCity();
+            }
+
+            @Override
+            public void onWeatherSaveFailed() {
+                view.showError();
+            }
+        });
     }
 }

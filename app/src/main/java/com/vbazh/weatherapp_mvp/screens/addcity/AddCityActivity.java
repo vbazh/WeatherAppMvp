@@ -9,7 +9,9 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.vbazh.weatherapp_mvp.R;
-import com.vbazh.weatherapp_mvp.data.repository.cities.CitiesLocalDataSource;
+import com.vbazh.weatherapp_mvp.data.repository.weather.WeatherLocalDataSource;
+import com.vbazh.weatherapp_mvp.data.repository.weather.WeatherRemoteDataSource;
+import com.vbazh.weatherapp_mvp.data.repository.weather.WeatherRepository;
 
 
 public class AddCityActivity extends AppCompatActivity implements AddCityContract.View {
@@ -69,9 +71,11 @@ public class AddCityActivity extends AppCompatActivity implements AddCityContrac
     private void attachPresenter() {
         mPresenter = (AddCityContract.Presenter) getLastCustomNonConfigurationInstance();
         if (mPresenter == null) {
-            mPresenter = new AddCityPresenter();
+            WeatherRepository weatherRepository = WeatherRepository.getInstance(WeatherRemoteDataSource.getInstance(),
+                    WeatherLocalDataSource.getInstance(getApplicationContext()));
+            mPresenter = new AddCityPresenter(weatherRepository);
         }
-        mPresenter.attachView(this, CitiesLocalDataSource.getInstance(getApplicationContext()));
+        mPresenter.attachView(this);
     }
 
     @Override

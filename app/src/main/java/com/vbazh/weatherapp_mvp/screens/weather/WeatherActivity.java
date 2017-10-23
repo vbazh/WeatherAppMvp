@@ -8,35 +8,41 @@ import android.widget.TextView;
 import android.support.v7.widget.Toolbar;
 
 import com.vbazh.weatherapp_mvp.R;
+import com.vbazh.weatherapp_mvp.data.repository.weather.WeatherLocalDataSource;
+import com.vbazh.weatherapp_mvp.data.repository.weather.WeatherRemoteDataSource;
+import com.vbazh.weatherapp_mvp.data.repository.weather.WeatherRepository;
 
 
 public class WeatherActivity extends AppCompatActivity implements WeatherContract.View {
 
-    public static final String EXTRA_CITY_NAME = "extra_city_name";
+    public static final String EXTRA_ID_CITY = "extra_id_city";
     private TextView cityName;
     private TextView cityTemp;
-    String city = null;
+    private TextView cityPressure;
+    private TextView cityHumidity;
+    String id = null;
 
     private WeatherContract.Presenter mPresenter;
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
-        city = getIntent().getStringExtra(EXTRA_CITY_NAME);
+        id = getIntent().getStringExtra(EXTRA_ID_CITY);
         init();
         attachPresenter();
 
     }
 
     private void attachPresenter() {
-
         mPresenter = (WeatherContract.Presenter) getLastCustomNonConfigurationInstance();
         if (mPresenter == null) {
-            mPresenter = new WeatherPresenter();
+            WeatherRepository weatherRepository = WeatherRepository.getInstance(WeatherRemoteDataSource.getInstance(),
+                    WeatherLocalDataSource.getInstance(getApplicationContext()));
+            mPresenter = new WeatherPresenter(id, weatherRepository);
         }
-        mPresenter.attachView(this, city);
+        mPresenter.attachView(this);
+        mPresenter.updateView();
     }
 
     private void init() {
@@ -52,6 +58,8 @@ public class WeatherActivity extends AppCompatActivity implements WeatherContrac
 
         cityName = findViewById(R.id.text_city_name);
         cityTemp = findViewById(R.id.text_city_temp);
+        cityPressure = findViewById(R.id.text_city_pressure);
+        cityHumidity = findViewById(R.id.text_city_humidity);
     }
 
     @Override
@@ -75,8 +83,19 @@ public class WeatherActivity extends AppCompatActivity implements WeatherContrac
     }
 
     @Override
-    public void setTemperature(String temperature) {
-        cityTemp.setText(temperature);
+    public void setTemperature(Double temperature) {
+        cityTemp.setText(String.valueOf(temperature));
+    }
+
+    @Override
+    public void setPressure(Integer pressure) {
+        cityPressure.setText(String.valueOf(pressure));
+
+    }
+
+    @Override
+    public void setHumidity(Integer humidity) {
+        cityHumidity.setText(String.valueOf(humidity));
     }
 
     @Override

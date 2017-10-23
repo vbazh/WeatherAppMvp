@@ -19,13 +19,16 @@ public class DbHelper extends SQLiteOpenHelper {
 
     private static final String COMMA_SEP = " ,";
 
-    private static final String SQL_CREATE_ENTRIES_CITIES =
-            "CREATE TABLE " + DbContract.CityEntry.TABLE_NAME + " (" +
-                    DbContract.CityEntry.COLUMN_ID + INTEGER_TYPE + " PRIMARY KEY AUTOINCREMENT," +
-                    DbContract.CityEntry.COLUMN_CITY_ID + INTEGER_TYPE + COMMA_SEP +
-                    DbContract.CityEntry.COLUMN_CITY_NAME + INTEGER_TYPE + COMMA_SEP +
-                    DbContract.CityEntry.COLUMN_CITY_LON + REAL_TYPE + COMMA_SEP +
-                    DbContract.CityEntry.COLUMN_CITY_LAT + REAL_TYPE + " )";
+    private static final String SQL_CREATE_ENTRIES_WEATHER =
+            "CREATE TABLE " + DbContract.WeatherEntry.TABLE_NAME + " (" +
+                    DbContract.WeatherEntry.COLUMN_ID + TEXT_TYPE + " PRIMARY KEY," +
+                    DbContract.WeatherEntry.COLUMN_WEATHER_CITY_ID + INTEGER_TYPE + COMMA_SEP +
+                    DbContract.WeatherEntry.COLUMN_WEATHER_CITY_NAME + TEXT_TYPE + COMMA_SEP +
+                    DbContract.WeatherEntry.COLUMN_WEATHER_CITY_LON + REAL_TYPE + COMMA_SEP +
+                    DbContract.WeatherEntry.COLUMN_WEATHER_CITY_LAT + REAL_TYPE + COMMA_SEP +
+                    DbContract.WeatherEntry.COLUMN_WEATHER_TEMP + REAL_TYPE + COMMA_SEP +
+                    DbContract.WeatherEntry.COLUMN_WEATHER_PRESSURE + INTEGER_TYPE + COMMA_SEP +
+                    DbContract.WeatherEntry.COLUMN_WEATHER_HUMIDITY + INTEGER_TYPE + " )";
 
     public DbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -34,7 +37,7 @@ public class DbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        db.execSQL(SQL_CREATE_ENTRIES_CITIES);
+        db.execSQL(SQL_CREATE_ENTRIES_WEATHER);
 
     }
 

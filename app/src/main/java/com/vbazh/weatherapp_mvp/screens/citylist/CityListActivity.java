@@ -2,6 +2,7 @@ package com.vbazh.weatherapp_mvp.screens.citylist;
 
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,8 +14,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.vbazh.weatherapp_mvp.R;
-import com.vbazh.weatherapp_mvp.data.entities.City;
-import com.vbazh.weatherapp_mvp.data.repository.cities.CitiesLocalDataSource;
+import com.vbazh.weatherapp_mvp.data.entities.Weather;
+import com.vbazh.weatherapp_mvp.data.repository.weather.WeatherLocalDataSource;
+import com.vbazh.weatherapp_mvp.data.repository.weather.WeatherRemoteDataSource;
+import com.vbazh.weatherapp_mvp.data.repository.weather.WeatherRepository;
 import com.vbazh.weatherapp_mvp.screens.addcity.AddCityActivity;
 import com.vbazh.weatherapp_mvp.screens.citylist.ui.CityAdapter;
 import com.vbazh.weatherapp_mvp.screens.citylist.ui.RecyclerItemTouchHelper;
@@ -30,8 +33,10 @@ public class CityListActivity extends AppCompatActivity implements CityListContr
     private CityAdapter mCityAdapter;
 
     private TextView mTextNocity;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
-    private List<City> mCities = new ArrayList<>();
+    private WeatherRepository mWeatherRepository;
+    private List<Weather> mAllWeather = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,19 +59,26 @@ public class CityListActivity extends AppCompatActivity implements CityListContr
                 = new RecyclerItemTouchHelper(0, ItemTouchHelper.LEFT, new RecyclerItemTouchHelper.RecyclerItemTouchHelperListener() {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, int position) {
-                mPresenter.deleteCity(mCities.get(viewHolder.getAdapterPosition()).getId());
-                mCityAdapter.removeItem(viewHolder.getAdapterPosition());
+                mPresenter.deleteCity(mAllWeather.get(viewHolder.getAdapterPosition()).getId());
             }
         });
 
         new ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(mCityRecycler);
 
         mTextNocity = findViewById(R.id.text_no_city);
+        mSwipeRefreshLayout = findViewById(R.id.swipe_layout);
 
-        mCityAdapter = new CityAdapter(this, mCities, new CityAdapter.OnItemClickListener() {
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
-            public void onItemClick(String cityName) {
-                mPresenter.showCityWeather(cityName);
+            public void onRefresh() {
+                mPresenter.loadCities(true);
+            }
+        });
+
+        mCityAdapter = new CityAdapter(this, mAllWeather, new CityAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(String id) {
+                mPresenter.showCityWeather(id);
             }
         });
 
@@ -98,9 +110,13 @@ public class CityListActivity extends AppCompatActivity implements CityListContr
     private void attachPresenter() {
         mPresenter = (CityListContract.Presenter) getLastCustomNonConfigurationInstance();
         if (mPresenter == null) {
-            mPresenter = new CityListPresenter();
+            mWeatherRepository = WeatherRepository.getInstance(WeatherRemoteDataSource.getInstance(),
+                    WeatherLocalDataSource.getInstance(getApplicationContext()));
+
+            mPresenter = new CityListPresenter(mWeatherRepository);
         }
-        mPresenter.attachView(this, CitiesLocalDataSource.getInstance(getApplicationContext()));
+
+        mPresenter.attachView(this);
     }
 
     @Override
@@ -109,14 +125,20 @@ public class CityListActivity extends AppCompatActivity implements CityListContr
     }
 
     @Override
-    public void setLoadingIndicator(boolean isLoading) {
+    public void setLoadingIndicator(final boolean isLoading) {
 
+        mSwipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeRefreshLayout.setRefreshing(isLoading);
+            }
+        });
     }
 
     @Override
-    public void showCities(List<City> cities) {
-        mCities = cities;
-        mCityAdapter.replaceData(cities);
+    public void showCities(List<Weather> allWeather) {
+        mAllWeather = allWeather;
+        mCityAdapter.replaceData(allWeather);
         mTextNocity.setVisibility(View.GONE);
     }
 
@@ -128,9 +150,9 @@ public class CityListActivity extends AppCompatActivity implements CityListContr
     }
 
     @Override
-    public void showWeather(String cityName) {
+    public void showWeather(String id) {
         Intent intent = new Intent(CityListActivity.this, WeatherActivity.class);
-        intent.putExtra(WeatherActivity.EXTRA_CITY_NAME, cityName);
+        intent.putExtra(WeatherActivity.EXTRA_ID_CITY, id);
         startActivity(intent);
     }
 

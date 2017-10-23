@@ -4,6 +4,10 @@ import com.vbazh.weatherapp_mvp.BuildConfig;
 import com.vbazh.weatherapp_mvp.data.entities.Weather;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -54,22 +58,68 @@ public class WeatherRemoteDataSource implements WeatherDataSource {
     }
 
     @Override
-    public void getWeather(String name, final GetWeatherCallback callback) {
+    public void getWeather(Integer id, final GetWeatherCallback callback) {
 
-        weatherApi.getWeather(name, BuildConfig.API_KEY).enqueue(new Callback<WeatherResponse>() {
+
+    }
+
+    @Override
+    public void getWeather(String cityName, final GetWeatherCallback callback) {
+
+        weatherApi.getWeather(cityName, BuildConfig.API_KEY).enqueue(new Callback<WeatherResponse>() {
             @Override
             public void onResponse(Call<WeatherResponse> call, retrofit2.Response<WeatherResponse> response) {
                 if (response.isSuccessful()) {
-                    Weather weather = new Weather(response.body().getId(), String.valueOf(response.body().getMain().getTemp()));
+
+                    Weather weather = new Weather(response.body().getId(),
+
+                            response.body().getName(),
+                            response.body().getCoord().getLon(),
+                            response.body().getCoord().getLat(),
+                            response.body().getMain().getTemp(),
+                            response.body().getMain().getPressure(),
+                            response.body().getMain().getHumidity());
+
                     callback.onWeatherLoaded(weather);
                 }
             }
 
             @Override
             public void onFailure(Call<WeatherResponse> call, Throwable t) {
-
+                callback.onDataNotAvailable();
             }
         });
 
     }
+
+    @Override
+    public void saveWeather(Weather weather, WeatherSavedCallback callback) {
+
+    }
+
+    @Override
+    public void getAllWeather(GetAllWeatherLoaded callback) {
+
+    }
+
+    @Override
+    public void getAllWeather(Map<String, String> ids, final GetAllWeatherLoaded callback) {
+
+    }
+
+    @Override
+    public void deleteWeather(String id) {
+
+    }
+
+    @Override
+    public void deleteAllWeather() {
+
+    }
+
+    @Override
+    public void refreshWeather() {
+
+    }
+
 }

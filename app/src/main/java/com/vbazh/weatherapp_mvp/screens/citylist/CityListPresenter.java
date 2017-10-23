@@ -2,10 +2,11 @@ package com.vbazh.weatherapp_mvp.screens.citylist;
 
 import android.app.Activity;
 
-import com.vbazh.weatherapp_mvp.data.entities.City;
-import com.vbazh.weatherapp_mvp.data.repository.cities.CitiesLocalDataSource;
-import com.vbazh.weatherapp_mvp.data.repository.cities.CitiesRepository;
-import com.vbazh.weatherapp_mvp.data.repository.cities.CityDataSource;
+import com.vbazh.weatherapp_mvp.data.entities.Weather;
+import com.vbazh.weatherapp_mvp.data.repository.weather.WeatherDataSource;
+import com.vbazh.weatherapp_mvp.data.repository.weather.WeatherLocalDataSource;
+import com.vbazh.weatherapp_mvp.data.repository.weather.WeatherRemoteDataSource;
+import com.vbazh.weatherapp_mvp.data.repository.weather.WeatherRepository;
 import com.vbazh.weatherapp_mvp.screens.addcity.AddCityActivity;
 
 import java.util.ArrayList;
@@ -14,13 +15,16 @@ import java.util.List;
 public class CityListPresenter implements CityListContract.Presenter {
 
     private CityListContract.View view;
-    private CitiesRepository mCitiesRepository;
+    private WeatherRepository mWeatherRepository;
     private boolean mFirstLoad = true;
 
+    public CityListPresenter(WeatherRepository weatherRepository) {
+        this.mWeatherRepository = weatherRepository;
+    }
+
     @Override
-    public void attachView(CityListContract.View view, CitiesLocalDataSource citiesLocalDataSource) {
+    public void attachView(CityListContract.View view) {
         this.view = view;
-        mCitiesRepository = CitiesRepository.getInstance(citiesLocalDataSource);
         updateView();
     }
 
@@ -38,8 +42,8 @@ public class CityListPresenter implements CityListContract.Presenter {
     @Override
     public void result(int requestCode, int resultCode) {
         if (AddCityActivity.REQUEST_ADD_CITY == requestCode && Activity.RESULT_OK == resultCode) {
-            updateView();
             view.showSuccessfullySavedCity();
+            updateView();
         }
     }
 
@@ -50,22 +54,26 @@ public class CityListPresenter implements CityListContract.Presenter {
     }
 
     private void loadCities(boolean forceUpdate, final boolean showLoadingUI) {
+
         if (showLoadingUI) {
             view.setLoadingIndicator(true);
         }
 
-        mCitiesRepository.getCities(new CityDataSource.LoadCitiesCallback() {
+        mWeatherRepository.getAllWeather(new WeatherDataSource.GetAllWeatherLoaded() {
+
             @Override
-            public void onCitiesLoaded(List<City> cities) {
-                List<City> newCities = new ArrayList<>();
-                newCities.addAll(cities);
+            public void onAllWeatherLoaded(List<Weather> weatherList) {
+
+                List<Weather> newWeatherList = new ArrayList<>();
+                newWeatherList.addAll(weatherList);
                 if (view == null) {
                     return;
                 }
+
                 if (showLoadingUI) {
                     view.setLoadingIndicator(false);
                 }
-                process(newCities);
+                process(newWeatherList);
             }
 
             @Override
@@ -78,12 +86,12 @@ public class CityListPresenter implements CityListContract.Presenter {
         });
     }
 
-    private void process(List<City> newCities) {
-        if (newCities.isEmpty()) {
+    private void process(List<Weather> newWeatherList) {
+        if (newWeatherList.isEmpty()) {
             view.showNocities(true);
 
         } else {
-            view.showCities(newCities);
+            view.showCities(newWeatherList);
         }
     }
 
@@ -93,13 +101,14 @@ public class CityListPresenter implements CityListContract.Presenter {
     }
 
     @Override
-    public void showCityWeather(String cityName) {
-        view.showWeather(cityName);
+    public void showCityWeather(String id) {
+        view.showWeather(id);
     }
 
     @Override
-    public void deleteCity(Integer cityId) {
-        mCitiesRepository.deleteCity(cityId);
+    public void deleteCity(String cityId) {
+        mWeatherRepository.deleteWeather(cityId);
         view.showSuccessfullyDeleteCity();
+        updateView();
     }
 }

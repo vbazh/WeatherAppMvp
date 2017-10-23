@@ -3,8 +3,8 @@ package com.vbazh.weatherapp_mvp.screens.citylist;
 
 import com.vbazh.weatherapp_mvp.base.BasePresenter;
 import com.vbazh.weatherapp_mvp.base.BaseView;
-import com.vbazh.weatherapp_mvp.data.entities.City;
-import com.vbazh.weatherapp_mvp.data.repository.cities.CitiesLocalDataSource;
+import com.vbazh.weatherapp_mvp.data.entities.Weather;
+import com.vbazh.weatherapp_mvp.data.repository.weather.WeatherRepository;
 
 import java.util.List;
 
@@ -14,11 +14,11 @@ public interface CityListContract {
 
         void setLoadingIndicator(boolean isShow);
 
-        void showCities(List<City> cities);
+        void showCities(List<Weather> allWeather);
 
         void showNocities(boolean isVisible);
 
-        void showWeather(String cityName);
+        void showWeather(String id);
 
         void showAddWeather();
 
@@ -30,7 +30,7 @@ public interface CityListContract {
 
     interface Presenter extends BasePresenter<View> {
 
-        void attachView(View view, CitiesLocalDataSource localDataSource);
+        void attachView(View view);
 
         void result(int requestCode, int resultCode);
 
@@ -38,9 +38,9 @@ public interface CityListContract {
 
         void addNewCity();
 
-        void showCityWeather(String cityName);
+        void showCityWeather(String id);
 
-        void deleteCity(Integer cityId);
+        void deleteCity(String cityId);
 
     }
 
